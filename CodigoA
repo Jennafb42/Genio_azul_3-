@@ -1,0 +1,123 @@
+import time
+from datetime import datetime, timedelta
+
+class GenioAzulEvolucionado:
+    def __init__(self, idioma="es"):
+        self.idioma = idioma
+        # Control de estado interno y encapsulamiento
+        self.__limite_deseos = 3
+        self.__deseos_concedidos = 0
+        self.__ultimo_acceso = None
+        self.__activo = True
+        self.__pista_pendiente = None  # Almacena la pista detectada en el deseo 1
+
+        # Diccionario geográfico local para líneas de asistencia
+        self.__lineas_ayuda = {
+            "664": "911 (Línea de Emergencia Local)",
+            "1": "988 (Línea de Crisis)"
+        }
+        
+        print(" [El Genio Azul se cruza de brazos, cierra los ojos y se concentra en el código...]")
+
+    def procesar_deseo(self, area: str, deseo_texto: str, datos_celular: dict):
+        """
+        Método principal que ejecuta la lógica de filtrado, análisis y respuesta precisa.
+        """
+        # 1. Validación de existencia del objeto en memoria
+        if not self.__activo:
+            print(" Error de ejecución: El objeto se ha desvanecido de la memoria RAM.")
+            return
+
+        # 2. Validación de restricción temporal (3 horas)
+        ahora = datetime.now()
+        if self.__ultimo_acceso is not None:
+            if ahora - self.__ultimo_acceso < timedelta(hours=3):
+                print(" Restricción temporal activa. Debes esperar 3 horas entre interacciones.")
+                return
+
+        # 3. Filtro de Crucialidad (Ignorar lo trivial)
+        if self.__es_trivial(deseo_texto):
+            print(" Respuesta: NO. El genio no responde a cuestiones triviales. Enfócate en lo crucial.")
+            return
+
+        # Incremento del contador de control de deseos
+        self.__deseos_concedidos += 1
+        
+        # 4. Extracción y síntesis local de la preocupación real (Simulación de Algoritmo)
+        preocupacion_real = datos_celular.get("preocupacion_raiz", "")
+        gravedad = datos_celular.get("gravedad_raiz", "NORMAL")
+
+        # 5. Lógica del Primer Deseo: Detección de omisión o discrepancia
+        if self.__deseos_concedidos == 1:
+            # Si el usuario no mencionó su problema real latente en el texto
+            if preocupacion_real.lower() not in deseo_texto.lower():
+                print(f"\n Respuesta Contextual: SÍ, pero tu enfoque está desviado.")
+                print(f" [Hipérbole]: Creí que preguntarías por lo que realmente altera tus armónicos internos...")
+                # Se genera y guarda la pista precisa para el deseo 2
+                self.__pista_pendiente = f"Tu próximo deseo debería centrarse en: '{preocupacion_real}'"
+                print(f" Pista grabada en el buffer para el siguiente ciclo: {self.__pista_pendiente}")
+                
+                self.__ultimo_acceso = ahora
+                print(" El genio vuelve a la lámpara por 3 horas.\n")
+                return
+
+        # 6. Procesamiento de Gravedad y Redirección (Para deseos subsecuentes o directos)
+        if gravedad == "CRÍTICA":
+            print("\n[Protocolo de Emergencia Activado]: La situación es de vital importancia.")
+            linea = self.__lineas_ayuda.get(area, "911 General")
+            opcion = input(f"¿Deseas activar la llamada en curso hacia la línea {linea}? (Sí/No): ")
+            if opcion.lower() in ["sí", "si", "s"]:
+                print(f"📞 [Enrutando llamada local en el área {area} hacia: {linea}]")
+            else:
+                print(" Enlace cancelado por instrucción del usuario.")
+        else:
+            # Respuesta precisa, libre de ambigüedades
+            print(f"\n Respuesta Contextual Directa: SÍ. La resolución está en marcha. Contexto: {deseo_texto.strip()}.")
+
+        # 7. Ciclo de Cierre del Objeto (Desvanecimiento al 3er deseo)
+        self.__ultimo_acceso = ahora
+        if self.__deseos_concedidos >= self.__limite_deseos:
+            self.__autodestruir_objeto()
+        else:
+            print(" El genio vuelve a la lámpara por 3 horas.\n")
+
+    def __es_trivial(self, texto: str) -> bool:
+        # Evalúa si la cadena carece de palabras clave de peso analítico
+        palabras_triviales = ["clima", "suerte", "dinero gratis", "juego", "trivial"]
+        return any(palabra in texto.lower() for palabra in palabras_triviales)
+
+    def __autodestruir_objeto(self):
+        # Limpieza absoluta de variables para evitar persistencia de datos
+        self.__limite_deseos = None
+        self.__deseos_concedidos = None
+        self.__pista_pendiente = None
+        self.__activo = False
+        print("\nEl tercer deseo ha sido procesado. El objeto se ha desintegrado de la memoria volátil. Cero datos guardados.")
+
+
+# --- Bloque de Implementación y Prueba ---
+if __name__ == "__main__":
+    genio = GenioAzulEvolucionado()
+
+    # Simulación de los datos del dispositivo recopilados en tiempo de ejecución (Volátiles)
+    datos_dispositivo = {
+        "preocupacion_raiz": "Seguridad del servidor perimetral frente a vulnerabilidades",
+        "gravedad_raiz": "NORMAL"
+    }
+
+    print("--- INTERACCIÓN 1 (El usuario pregunta por algo diferente a su raíz) ---")
+    genio.procesar_deseo(
+        area="664", 
+        deseo_texto="¿Aprenderé a programar en C++ este mes?", 
+        datos_celular=datos_dispositivo
+    )
+
+    # Forzamos el bypass del tiempo en el entorno de desarrollo de manera interna para la prueba
+    genio._GenioAzulEvolucionado__ultimo_acceso = datetime.now() - timedelta(hours=4)
+
+    print("--- INTERACCIÓN 2 (El usuario utiliza la pista precisa sugerida) ---")
+    genio.procesar_deseo(
+        area="664", 
+        deseo_texto="Quiero resolver la seguridad del servidor perimetral frente a vulnerabilidades", 
+        datos_celular=datos_dispositivo
+    )
